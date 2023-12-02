@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>autenticacao</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+
+  <form id="MainForm" class="w-25 m-4">
+    <h2>Login User</h2>
+    <div class="form-floating mb-3">
+      <input type="email" class="form-control" id="emailInp" placeholder="name@example.com">
+      <label for="floatingInput">Email address</label>
+    </div>
+    <div class="form-floating mb-3">
+      <input type="password" class="form-control" id="passwordInp" placeholder="Password">
+      <label for="floatingPassword">Password</label>
+    </div>
+    
+   
+
+    <button type="submit" class="btn btn-primary">Login</button>
+    <a href="index.html"><button type="button" class="btn btn-primary">Sign Up</button></a>
+  </form>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+  <script type="module">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-analytics.js";
+    import { getDatabase, get, ref, child } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js";
+   
+    const firebaseConfig = {
+      apiKey: "AIzaSyC9FrcJrjlJKkXw_hvZP-sw4omRy6sZIbQ",
+      authDomain: "teste-autenticacao-adf6b.firebaseapp.com",
+      databaseURL: "https://teste-autenticacao-adf6b-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "teste-autenticacao-adf6b",
+      storageBucket: "teste-autenticacao-adf6b.appspot.com",
+      messagingSenderId: "173786801533",
+      appId: "1:173786801533:web:c299ebc23f6b5fb407d814",
+      measurementId: "G-2S1HHYL7JE"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const db = getDatabase();
+    const auth = getAuth(app);
+    const dbref = ref(db);
+
+    let EmailInp = document.getElementById('emailInp');
+    let PassInp = document.getElementById('passwordInp');
+    
+    let MainForm = document.getElementById('MainForm');
+  
+    let SignInUser = evt => {
+      evt.preventDefault();
+
+      signInWithEmailAndPassword(auth, EmailInp.value, PassInp.value)
+      .then((credentials)=>{
+        get(child(dbref, 'UserAuthList/' + credentials.user.uid)).then((snapshot)=>{
+            if(snapshot.exists){
+                sessionStorage.setItem("user-info", JSON.stringify({
+                    firstname: snapshot.val().firstname,
+                    lastname: snapshot.val().lastname
+                }))
+                sessionStorage.setItem("user-creds", JSON.stringify(credentials.user));
+                window.location.href ='home.html';
+            }
+        })
+
+      })
+      .catch((error)=>{
+        aler(error.message);
+        console.log(error.code);
+        console.log(error.message);
+      })
+    }
+
+    MainForm.addEventListener('submit', SignInUser);
+
+
+
+  </script>
+
+
+</body>
+</html>
